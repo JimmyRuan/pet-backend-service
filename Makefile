@@ -3,6 +3,10 @@ IMAGE_NAME=jimmyruan/docu-pet-api-image
 TAG=latest
 
 
+# connect to the app bash shell
+app-shell:
+	docker compose exec app bash
+
 # Bring up all services
 up:
 	docker-compose up -d
