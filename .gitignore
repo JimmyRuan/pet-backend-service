@@ -1,3 +1,5 @@
 .idea
 docker/mysql_data
 node_modules
+backend/api-app/.env
+backend/vendor
