@@ -28,6 +28,7 @@ services:
     ports:
       - 3000:3000
     command: tail -f /dev/null
+#    command: yarn serve
     networks:
       - dp-network
     container_name: DocuPet_frontend
