@@ -7,6 +7,10 @@ TAG=latest
 app-shell:
 	docker compose exec app bash
 
+# connect to the app bash shell
+node-shell:
+	docker compose exec node bash
+
 # Bring up all services
 up:
 	docker-compose up -d
