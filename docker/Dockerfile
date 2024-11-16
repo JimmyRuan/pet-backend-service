@@ -27,18 +27,18 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 # Install PHP extensions
 RUN docker-php-ext-install pdo_mysql mbstring zip exif pcntl
 
-
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Install Symfony CLI
+RUN curl -sS https://get.symfony.com/cli/installer | bash && \
+    mv /root/.symfony*/bin/symfony /usr/local/bin/symfony
 
 # Set working directory
 WORKDIR /var/www
 
 # Copy existing application directory contents
 COPY .. /var/www
-
-# Install Laravel dependencies
-#RUN composer install --no-dev --prefer-dist --optimize-autoloader
 
 # Copy existing application directory permissions
 COPY --chown=www-data:www-data .. /var/www
