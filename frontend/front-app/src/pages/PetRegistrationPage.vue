@@ -14,7 +14,7 @@
               class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
               required
           />
-        </div>xxxxx
+        </div>
 
         <!-- Pet Type -->
         <div>
@@ -26,7 +26,7 @@
                   'custom-blue-bg text-white custom-blue-border': pet.type === 'Cat',
                   'bg-white text-blue-500 custom-blue-border': pet.type !== 'Cat',
                 }"
-                class="border rounded-l-lg px-6 py-2 w-1/4 focus:outline-none"
+                class="border rounded-l-lg px-6 py-1 w-1/4 focus:outline-none"
                 @click="selectPetType('Cat')"
             >
               Cat
@@ -37,7 +37,7 @@
                   'custom-blue-bg text-white custom-blue-border': pet.type === 'Dog',
                   'bg-white text-blue-500 custom-blue-border': pet.type !== 'Dog',
                 }"
-                class="border rounded-r-lg px-6 py-2 w-1/4 focus:outline-none"
+                class="border rounded-r-lg px-6 py-1 w-1/4 focus:outline-none"
                 @click="selectPetType('Dog')"
             >
               Dog
@@ -62,11 +62,9 @@
         </div>
 
         <!-- Buttons for "I don’t know" or "It’s a mix" -->
-        <!-- Buttons for "I don’t know" or "It’s a mix" -->
         <div v-if="pet.breed === 'CantFindIt'" class="mt-4 ml-6">
           <p class="text-sm text-gray-500 mb-2 text-left font-bold">Choose One</p>
           <div class="flex flex-col space-y-4">
-            <!-- "I don't know" Option -->
             <label class="flex items-center space-x-2">
               <input
                   type="radio"
@@ -79,7 +77,6 @@
               <span class="text-gray-700">I don’t know</span>
             </label>
 
-            <!-- "It's a mix" Option -->
             <label class="flex items-center space-x-2">
               <input
                   type="radio"
@@ -92,7 +89,6 @@
               <span class="text-gray-700">It’s a mix</span>
             </label>
 
-            <!-- Text Input for Mix Breed -->
             <div v-if="cantFindBreedOption === 'It’s a mix'" class="ml-6 mt-2">
               <label for="mixBreed" class="block text-gray-700 font-medium text-left mb-2">Mix Breed Details</label>
               <input
@@ -116,7 +112,7 @@
                     'custom-blue-bg text-white custom-blue-border': dobOrAge === 'dob',
                     'bg-white text-blue-500 custom-blue-border': dobOrAge !== 'dob',
                   }"
-                class="border rounded-l-lg px-6 py-2 w-1/4 focus:outline-none"
+                class="border rounded-l-lg px-6 py-1 w-1/4 focus:outline-none"
                 @click="selectDobOrAge('dob')"
             >
               Yes
@@ -127,7 +123,7 @@
                 'custom-blue-bg text-white custom-blue-border': dobOrAge === 'age',
                 'bg-white text-blue-500 custom-blue-border': dobOrAge !== 'age',
               }"
-              class="border rounded-r-lg px-6 py-2 w-1/4 focus:outline-none"
+              class="border rounded-r-lg px-6 py-1 w-1/4 focus:outline-none"
               @click="selectDobOrAge('age')"
           >
             No
@@ -149,6 +145,7 @@
           </select>
         </div>
 
+        <!-- Date of Birth -->
         <div v-if="dobOrAge === 'dob'" class="mb-4">
           <label class="block text-gray-700 font-medium text-left mb-2">Date of Birth</label>
           <div class="flex space-x-4">
@@ -180,7 +177,7 @@
                   :max="daysInMonth"
                   placeholder="dd"
                   class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                  @input="validateDay"
+                  @blur="validateDay"
                   required
               />
             </div>
@@ -196,17 +193,15 @@
                   :max="currentYear"
                   placeholder="yyyy"
                   class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                  @input="validateYear"
+                  @blur="validateYear"
                   required
               />
             </div>
           </div>
-          <p v-if="dobError" class="text-red-500 text-sm mt-2">{{ dobError }}</p>
+          <ul v-if="dobErrors.length" class="text-red-500 text-sm mt-2">
+            <li v-for="(error, index) in dobErrors" :key="index">{{ error }}</li>
+          </ul>
         </div>
-
-
-
-
 
         <!-- Gender -->
         <div class="mb-4">
@@ -218,7 +213,7 @@
                   'custom-blue-bg text-white custom-blue-border': pet.gender === 'Female',
                   'bg-white text-blue-500 custom-blue-border': pet.gender !== 'Female',
                 }"
-                class="border rounded-l-lg px-6 py-2 w-1/4 focus:outline-none"
+                class="border rounded-l-lg px-6 py-1 w-1/4 focus:outline-none"
                 @click="selectGender('Female')"
             >
               Female
@@ -229,7 +224,7 @@
                   'custom-blue-bg text-white custom-blue-border': pet.gender === 'Male',
                   'bg-white text-blue-500 custom-blue-border': pet.gender !== 'Male',
                 }"
-                class="border rounded-r-lg px-6 py-2 w-1/4 focus:outline-none"
+                class="border rounded-r-lg px-6 py-1 w-1/4 focus:outline-none"
                 @click="selectGender('Male')"
             >
               Male
@@ -242,7 +237,7 @@
         <div class="flex justify-center">
           <button
               :disabled="!isFormValid"
-              :class="isFormValid ? 'bg-blue-500 hover:bg-blue-600' : 'bg-gray-400 cursor-not-allowed'"
+              :class="isFormValid ? 'bg-blue-500' : 'bg-gray-400 cursor-not-allowed'"
               class="text-white px-4 py-2 rounded-lg"
           >
             Save Pet
@@ -269,6 +264,7 @@ export default {
         'January', 'February', 'March', 'April', 'May', 'June',
         'July', 'August', 'September', 'October', 'November', 'December',
       ],
+      dobErrors: [],
     };
   },
   computed: {
@@ -348,7 +344,21 @@ export default {
           this.dobYear <= this.currentYear
       );
     },
+    validateDay() {
+      const maxDays = this.daysInMonth;
+      if (this.dobDay < 1 || this.dobDay > maxDays) {
+        this.dobError = `Day must be between 1 and ${maxDays} for the selected month.`;
+      } else {
+        this.dobError = '';
+      }
+    },
     validateYear() {
+      console.log("I am here at 352", [
+        this.dobYear,
+        this.currentYear,
+        this.dobYear < this.currentYear - 100,
+        this.dobYear > this.currentYear
+      ]);
       if (this.dobYear < this.currentYear - 100 || this.dobYear > this.currentYear) {
         this.dobError = `Year must be between ${this.currentYear - 100} and ${this.currentYear}.`;
       } else {
@@ -356,6 +366,10 @@ export default {
       }
     },
     savePet() {
+      this.validateYear();
+      this.validateDay();
+
+
       if (this.dobOrAge === 'dob' && this.isValidDob()) {
         this.updatePetField({
           field: 'dob',
@@ -374,7 +388,7 @@ export default {
 </script>
 
 <style scoped>
-.custom-blue-bg {
+.custom-blue-bg, .bg-blue-500 {
   background-color: #0096e1;
 }
 
@@ -384,5 +398,9 @@ export default {
 
 .custom-blue-text {
   color: #02386d;
+}
+
+.bg-blue-600:hover {
+  background-color: red;
 }
 </style>
