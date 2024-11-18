@@ -1,0 +1,1 @@
+{"version":1,"defects":{"App\\Tests\\Controller\\PetControllerTest::testIndex":8,"App\\Tests\\Controller\\PetControllerTest::testStore":8,"App\\Tests\\Controller\\PetControllerTest::testShow":8,"App\\Tests\\Controller\\PetControllerTest::testShowNotFound":8},"times":{"App\\Tests\\Controller\\PetControllerTest::testStore":0.08}}

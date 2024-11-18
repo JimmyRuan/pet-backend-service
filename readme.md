@@ -26,6 +26,16 @@ php bin/console doctrine:migrations:diff
 # run migrations
 php bin/console doctrine:migrations:migrate
 
+# set up for phpunit tests
+symfony console doctrine:database:create --env=test
+symfony console doctrine:migrations:migrate --env=test
+
+
+# run unit tests:
+vendor/bin/phpunit
+
+
+
 
 
 
