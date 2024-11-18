@@ -16,35 +16,8 @@ services:
       - dp-network
     depends_on:
       - mysql
-      - redis
     command: tail -f /dev/null
-    container_name: DocuPet_backend
-
-  node:
-    image: node:22.11.0
-    working_dir: /usr/src/app/front-app
-    volumes:
-      - ./frontend:/usr/src/app
-    ports:
-      - 3000:3000
-    command: tail -f /dev/null
-#    command: yarn serve
-    networks:
-      - dp-network
-    container_name: DocuPet_frontend
-
-  nginx:
-    image: nginx:alpine
-    volumes:
-      - ./:/var/www
-      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-    networks:
-      - dp-network
-    ports:
-      - 80:80
-    depends_on:
-      - app
-    container_name: DocuPet_nginx
+    container_name: DocuPet_api
 
   mysql:
     image: mysql:8
@@ -58,12 +31,6 @@ services:
     networks:
       - dp-network
     container_name: DocuPet_mysql
-
-  redis:
-    image: redis:alpine
-    networks:
-      - dp-network
-    container_name: DocuPet_redis
 
 networks:
   dp-network:
