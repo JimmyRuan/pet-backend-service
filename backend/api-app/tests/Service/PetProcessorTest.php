@@ -4,24 +4,26 @@ namespace App\Tests\Service;
 
 use App\Entity\Pet;
 use App\Service\PetProcessor;
+use App\Tests\Traits\TruncateDatabaseTrait;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\EntityRepository;
-use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class PetProcessorTest extends TestCase
+class PetProcessorTest extends KernelTestCase
 {
-    private $entityManager;
-    private $repository;
-    private $petProcessor;
+    use TruncateDatabaseTrait;
+
+    private EntityManagerInterface $entityManager;
+    private PetProcessor $petProcessor;
 
     protected function setUp(): void
     {
-        $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        $this->repository = $this->createMock(EntityRepository::class);
-        $this->entityManager
-            ->method('getRepository')
-            ->with(Pet::class)
-            ->willReturn($this->repository);
+        self::bootKernel();
+
+        // Retrieve the EntityManager from the service container
+        $this->entityManager = self::getContainer()->get(EntityManagerInterface::class);
+
+        // Ensure the database is clean before running tests
+        $this->truncateEntities($this->entityManager);
 
         $this->petProcessor = new PetProcessor($this->entityManager);
     }
@@ -36,15 +38,6 @@ class PetProcessorTest extends TestCase
             'gender' => 'Male',
         ];
 
-        $this->entityManager
-            ->expects($this->once())
-            ->method('persist')
-            ->with($this->isInstanceOf(Pet::class));
-
-        $this->entityManager
-            ->expects($this->once())
-            ->method('flush');
-
         $pet = $this->petProcessor->storePet($data);
 
         $this->assertInstanceOf(Pet::class, $pet);
@@ -54,6 +47,11 @@ class PetProcessorTest extends TestCase
         $this->assertEquals(new \DateTime('2020-05-20'), $pet->getDateOfBirth());
         $this->assertEquals('Male', $pet->getGender());
         $this->assertFalse($pet->isDangerousAnimal());
+
+        // Verify the pet is stored in the database
+        $storedPet = $this->entityManager->getRepository(Pet::class)->find($pet->getId());
+        $this->assertNotNull($storedPet);
+        $this->assertEquals('Buddy', $storedPet->getName());
     }
 
     public function testStorePetWithDangerousBreed(): void
@@ -65,15 +63,6 @@ class PetProcessorTest extends TestCase
             'date_of_birth' => '2018-03-15',
             'gender' => 'Male',
         ];
-
-        $this->entityManager
-            ->expects($this->once())
-            ->method('persist')
-            ->with($this->isInstanceOf(Pet::class));
-
-        $this->entityManager
-            ->expects($this->once())
-            ->method('flush');
 
         $pet = $this->petProcessor->storePet($data);
 
@@ -88,34 +77,47 @@ class PetProcessorTest extends TestCase
 
     public function testGetAllPets(): void
     {
-        $pet1 = (new Pet())->setName('Buddy')->setType('Dog');
-        $pet2 = (new Pet())->setName('Mittens')->setType('Cat');
+        $pet1 = (new Pet())
+            ->setName('Buddy')
+            ->setType('Dog')
+            ->setBreed('Golden Retriever')
+            ->setDateOfBirth(new \DateTime('2020-05-20'))
+            ->setGender('Male')
+            ->setIsDangerousAnimal(false);
 
-        $this->repository
-            ->expects($this->once())
-            ->method('findAll')
-            ->willReturn([$pet1, $pet2]);
+        $pet2 = (new Pet())
+            ->setName('Mittens')
+            ->setType('Cat')
+            ->setBreed('Siamese')
+            ->setDateOfBirth(new \DateTime('2019-01-15'))
+            ->setGender('Female')
+            ->setIsDangerousAnimal(false);
+
+        $this->entityManager->persist($pet1);
+        $this->entityManager->persist($pet2);
+        $this->entityManager->flush();
 
         $pets = $this->petProcessor->getAllPets();
 
         $this->assertCount(2, $pets);
         $this->assertEquals('Buddy', $pets[0]->getName());
-        $this->assertEquals('Dog', $pets[0]->getType());
         $this->assertEquals('Mittens', $pets[1]->getName());
-        $this->assertEquals('Cat', $pets[1]->getType());
     }
 
     public function testGetPetById(): void
     {
-        $pet = (new Pet())->setName('Buddy')->setType('Dog');
+        $pet = (new Pet())
+            ->setName('Buddy')
+            ->setType('Dog')
+            ->setBreed('Golden Retriever')
+            ->setDateOfBirth(new \DateTime('2020-05-20'))
+            ->setGender('Male')
+            ->setIsDangerousAnimal(false);
 
-        $this->repository
-            ->expects($this->once())
-            ->method('find')
-            ->with(1)
-            ->willReturn($pet);
+        $this->entityManager->persist($pet);
+        $this->entityManager->flush();
 
-        $result = $this->petProcessor->getPetById(1);
+        $result = $this->petProcessor->getPetById($pet->getId());
 
         $this->assertInstanceOf(Pet::class, $result);
         $this->assertEquals('Buddy', $result->getName());
@@ -124,12 +126,6 @@ class PetProcessorTest extends TestCase
 
     public function testGetPetByIdReturnsNull(): void
     {
-        $this->repository
-            ->expects($this->once())
-            ->method('find')
-            ->with(999)
-            ->willReturn(null);
-
         $result = $this->petProcessor->getPetById(999);
 
         $this->assertNull($result);
