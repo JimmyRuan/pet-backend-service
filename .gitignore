@@ -3,3 +3,4 @@ docker/mysql_data
 node_modules
 backend/api-app/.env
 backend/vendor
+backend/api-app/.phpunit.result.cache

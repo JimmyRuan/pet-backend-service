@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Api;
 
 use App\Entity\Pet;
 use Doctrine\ORM\EntityManagerInterface;
@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class PetController extends AbstractController
 {
-    #[Route('/pets', name: 'pets_index', methods: ['GET'])]
+    #[Route('/api/pets', name: 'api_pets_index', methods: ['GET'])]
     public function index(EntityManagerInterface $entityManager): JsonResponse
     {
         $pets = $entityManager->getRepository(Pet::class)->findAll();
@@ -19,7 +19,7 @@ class PetController extends AbstractController
         return $this->json($pets);
     }
 
-    #[Route('/pets/{id}', name: 'pets_show', methods: ['GET'])]
+    #[Route('/api/pets/{id}', name: 'api_pets_show', methods: ['GET'])]
     public function show(int $id, EntityManagerInterface $entityManager): JsonResponse
     {
         $pet = $entityManager->getRepository(Pet::class)->find($id);
@@ -30,8 +30,7 @@ class PetController extends AbstractController
         return $this->json($pet);
     }
 
-
-    #[Route('/pets', name: 'pets_store', methods: ['POST'])]
+    #[Route('/api/pets', name: 'api_pets_store', methods: ['POST'])]
     public function store(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
