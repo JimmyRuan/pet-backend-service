@@ -34,7 +34,6 @@ class PetProcessorTest extends TestCase
             'breed' => 'Golden Retriever',
             'date_of_birth' => '2020-05-20',
             'gender' => 'Male',
-            'is_dangerous_animal' => false,
         ];
 
         $this->entityManager
@@ -55,6 +54,36 @@ class PetProcessorTest extends TestCase
         $this->assertEquals(new \DateTime('2020-05-20'), $pet->getDateOfBirth());
         $this->assertEquals('Male', $pet->getGender());
         $this->assertFalse($pet->isDangerousAnimal());
+    }
+
+    public function testStorePetWithDangerousBreed(): void
+    {
+        $data = [
+            'name' => 'Max',
+            'type' => 'Dog',
+            'breed' => 'Pitbull',
+            'date_of_birth' => '2018-03-15',
+            'gender' => 'Male',
+        ];
+
+        $this->entityManager
+            ->expects($this->once())
+            ->method('persist')
+            ->with($this->isInstanceOf(Pet::class));
+
+        $this->entityManager
+            ->expects($this->once())
+            ->method('flush');
+
+        $pet = $this->petProcessor->storePet($data);
+
+        $this->assertInstanceOf(Pet::class, $pet);
+        $this->assertEquals('Max', $pet->getName());
+        $this->assertEquals('Dog', $pet->getType());
+        $this->assertEquals('Pitbull', $pet->getBreed());
+        $this->assertEquals(new \DateTime('2018-03-15'), $pet->getDateOfBirth());
+        $this->assertEquals('Male', $pet->getGender());
+        $this->assertTrue($pet->isDangerousAnimal());
     }
 
     public function testGetAllPets(): void

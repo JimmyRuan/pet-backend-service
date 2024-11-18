@@ -24,8 +24,11 @@ class PetProcessor
             ->setType($data['type'])
             ->setBreed($data['breed'])
             ->setDateOfBirth(new \DateTime($data['date_of_birth']))
-            ->setGender($data['gender'])
-            ->setIsDangerousAnimal($data['is_dangerous_animal']);
+            ->setGender($data['gender']);
+
+        // Determine if the breed is dangerous
+        $isDangerous = $this->isBreedDangerous($data['breed']);
+        $pet->setIsDangerousAnimal($isDangerous);
 
         $this->entityManager->persist($pet);
         $this->entityManager->flush();
@@ -47,5 +50,28 @@ class PetProcessor
     public function getPetById(int $id): ?Pet
     {
         return $this->entityManager->getRepository(Pet::class)->find($id);
+    }
+
+    /**
+     * Checks if a breed is considered dangerous.
+     */
+    private function isBreedDangerous(string $breed): bool
+    {
+        $dangerousBreeds = $this->dangerousBreeds();
+        return in_array($breed, $dangerousBreeds, true);
+    }
+
+    /**
+     * Returns a list of dangerous breeds.
+     */
+    private function dangerousBreeds(): array
+    {
+        return [
+            'Pitbull',
+            'Mastiff',
+            'Rottweiler',
+            'Doberman Pinscher',
+            'Akita',
+        ];
     }
 }
