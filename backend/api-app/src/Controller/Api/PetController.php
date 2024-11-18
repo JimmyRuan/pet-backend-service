@@ -2,8 +2,7 @@
 
 namespace App\Controller\Api;
 
-use App\Entity\Pet;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\PetProcessor;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -11,18 +10,25 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class PetController extends AbstractController
 {
-    #[Route('/api/pets', name: 'api_pets_index', methods: ['GET'])]
-    public function index(EntityManagerInterface $entityManager): JsonResponse
+    private PetProcessor $petProcessor;
+
+    public function __construct(PetProcessor $petProcessor)
     {
-        $pets = $entityManager->getRepository(Pet::class)->findAll();
+        $this->petProcessor = $petProcessor;
+    }
+
+    #[Route('/api/pets', name: 'api_pets_index', methods: ['GET'])]
+    public function index(): JsonResponse
+    {
+        $pets = $this->petProcessor->getAllPets();
 
         return $this->json($pets);
     }
 
     #[Route('/api/pets/{id}', name: 'api_pets_show', methods: ['GET'])]
-    public function show(int $id, EntityManagerInterface $entityManager): JsonResponse
+    public function show(int $id): JsonResponse
     {
-        $pet = $entityManager->getRepository(Pet::class)->find($id);
+        $pet = $this->petProcessor->getPetById($id);
         if (!$pet) {
             return $this->json(['message' => 'Pet not found'], 404);
         }
@@ -31,20 +37,15 @@ class PetController extends AbstractController
     }
 
     #[Route('/api/pets', name: 'api_pets_store', methods: ['POST'])]
-    public function store(Request $request, EntityManagerInterface $entityManager): JsonResponse
+    public function store(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
 
-        $pet = new Pet();
-        $pet->setName($data['name'])
-            ->setType($data['type'])
-            ->setBreed($data['breed'])
-            ->setDateOfBirth(new \DateTime($data['date_of_birth']))
-            ->setGender($data['gender'])
-            ->setIsDangerousAnimal($data['is_dangerous_animal']);
-
-        $entityManager->persist($pet);
-        $entityManager->flush();
+        try {
+            $pet = $this->petProcessor->storePet($data);
+        } catch (\Exception $e) {
+            return $this->json(['error' => $e->getMessage()], 400);
+        }
 
         return $this->json(['message' => 'Pet created successfully', 'pet' => $pet], 201);
     }
