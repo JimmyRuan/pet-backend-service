@@ -20,6 +20,13 @@ php bin/console make:migration
 # show available endpoints
 php bin/console debug:router
 
+# generate migrations
+php bin/console doctrine:migrations:diff
+
+# run migrations
+php bin/console doctrine:migrations:migrate
+
+
 
 
 # command to serve the frontend

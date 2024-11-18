@@ -19,6 +19,18 @@ class PetController extends AbstractController
         return $this->json($pets);
     }
 
+    #[Route('/pets/{id}', name: 'pets_show', methods: ['GET'])]
+    public function show(int $id, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $pet = $entityManager->getRepository(Pet::class)->find($id);
+        if (!$pet) {
+            return $this->json(['message' => 'Pet not found'], 404);
+        }
+
+        return $this->json($pet);
+    }
+
+
     #[Route('/pets', name: 'pets_store', methods: ['POST'])]
     public function store(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
