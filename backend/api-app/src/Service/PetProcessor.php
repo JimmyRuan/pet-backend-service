@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Pet;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 
 class PetProcessor
@@ -23,7 +24,7 @@ class PetProcessor
         $pet->setName($data['name'])
             ->setType($data['type'])
             ->setBreed($data['breed'])
-            ->setDateOfBirth(new \DateTime($data['date_of_birth']))
+            ->setDateOfBirth(new DateTime($data['date_of_birth']))
             ->setGender($data['gender']);
 
         // Determine if the breed is dangerous
@@ -73,5 +74,11 @@ class PetProcessor
             'Doberman Pinscher',
             'Akita',
         ];
+    }
+
+    public function deleteAllPets(): void
+    {
+        $query = $this->entityManager->createQuery('DELETE FROM App\Entity\Pet p');
+        $query->execute();
     }
 }
