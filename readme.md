@@ -1,53 +1,51 @@
+### Running the Application: A Step-by-Step Guide
 
+1. **Set Up Environment Variables**  
+   Copy the example environment file and configure it as needed:
+   ```bash
+   cp .env.example .env
+   ```
 
-```bash
-# important  commands
-# command to serve the backend
-symfony server:start --allow-http --port=8000 --listen-ip=0.0.0.0 --document-root=/var/www/api-app/public
+2. **Ensure Required Tools are Installed**
+    - Verify that Docker is installed, available, and running in the background.
+    - Ensure the `make` command is available on your system.
 
-# create database
-php bin/console doctrine:database:create
+3. **Access the Application Container**  
+   SSH into the `app` service defined in the `docker-compose.yml` file:
+   ```bash
+   make app-shell
+   ```
 
-# check mysql connection
-php bin/console doctrine:query:sql "SELECT 1"
+4. **Install Dependencies**  
+   Once inside the `app` container, install all necessary dependencies:
+   ```bash
+   composer install
+   ```
 
-# create pet entity
-php bin/console make:entity Pet
+5. **Set Up the Database and Run Migrations**  
+   **For the Development Environment:**
+   ```bash
+   php bin/console doctrine:database:create
+   symfony console doctrine:database:create
+   symfony console doctrine:migrations:migrate
+   ```
+   **For the Test Environment:**
+   ```bash
+   php bin/console doctrine:database:create --env=test
+   symfony console doctrine:database:create --env=test
+   symfony console doctrine:migrations:migrate --env=test
+   ```
 
-# run migrations
-php bin/console make:migration
+6. **Verify Tests**  
+   Ensure all PHPUnit tests pass by running:
+   ```bash
+   vendor/bin/phpunit
+   ```
 
-# show available endpoints
-php bin/console debug:router
+7. **Start the Backend Application**  
+   Inside the `app` container, start the backend application for the frontend to use:
+   ```bash
+   symfony server:start --allow-http --port=8000 --listen-ip=0.0.0.0 --document-root=/var/www/api-app/public
+   ```
 
-# generate migrations
-php bin/console doctrine:migrations:diff
-
-# run migrations
-php bin/console doctrine:migrations:migrate
-
-# set up for phpunit tests
-symfony console doctrine:database:create --env=test
-symfony console doctrine:migrations:migrate --env=test
-
-
-# run unit tests:
-vendor/bin/phpunit
-
-
-
-
-
-
-# command to serve the frontend
-yarn serve
-
-
-# frontend url:
-http://localhost:3000/
-
-# backend url:
-http://localhost:8000/health
-
-```
-
+By following these steps, you’ll have your application up and running, ready for development and testing.
